@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ prompt.title }} - Admin{% endblock %}
+
+{% block content %}
+<div class="nav">
+    <a href="/admin">All Prompts</a>
+    <a href="/admin/new">Create New Prompt</a>
+</div>
+
+<h1>{{ prompt.title }}</h1>
+<p>{{ prompt.description }}</p>
+<p class="meta">Created: {{ prompt.created_at }}</p>
+
+<div class="link-box">
+    <strong>Share this link to collect feedback:</strong><br><br>
+    <code>{{ feedback_url }}</code>
+</div>
+
+<h2>Feedback Responses ({{ feedback_list.len() }})</h2>
+
+{% if feedback_list.is_empty() %}
+<div class="empty-state">
+    <p>No feedback received yet. Share the link above to start collecting responses!</p>
+</div>
+{% else %}
+<div class="feedback-list">
+    {% for fb in feedback_list %}
+    <div class="feedback-item">
+        <div class="content">{{ fb.content }}</div>
+        <div class="meta">Submitted: {{ fb.created_at }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

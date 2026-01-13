@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Feedback Prompts{% endblock %}
+
+{% block content %}
+<div class="nav">
+    <a href="/admin">All Prompts</a>
+    <a href="/admin/new">Create New Prompt</a>
+</div>
+
+<h1>Feedback Prompts</h1>
+
+{% if prompts.is_empty() %}
+<div class="empty-state">
+    <p>No prompts yet. Create your first one!</p>
+    <br>
+    <a href="/admin/new" class="btn btn-success">Create Prompt</a>
+</div>
+{% else %}
+<ul class="prompt-list">
+    {% for prompt in prompts %}
+    <li class="prompt-item">
+        <h3>{{ prompt.title }}</h3>
+        <p>{{ prompt.description }}</p>
+        <p class="meta">Created: {{ prompt.created_at }}</p>
+        <br>
+        <a href="/admin/prompt/{{ prompt.id }}" class="btn">View Details</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

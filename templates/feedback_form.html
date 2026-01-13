@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ prompt.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ prompt.title }}</h1>
+<p>{{ prompt.description }}</p>
+
+<form method="POST" action="/feedback/{{ prompt.id }}">
+    <div class="form-group">
+        <label for="content">Your Feedback</label>
+        <textarea id="content" name="content" required placeholder="Share your thoughts..."></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Submit Feedback</button>
+</form>
+{% endblock %}
