@@ -17,14 +17,22 @@
     <a href="/admin/new" class="btn btn-success">Create Prompt</a>
 </div>
 {% else %}
-<ul class="prompt-list">
+<ul class="prompt-list" id="prompt-list">
     {% for prompt in prompts %}
-    <li class="prompt-item">
+    <li class="prompt-item" id="prompt-{{ prompt.id }}">
         <h3>{{ prompt.title }}</h3>
         <p>{{ prompt.description }}</p>
         <p class="meta">Created: {{ prompt.created_at }}</p>
         <br>
         <a href="/admin/prompt/{{ prompt.id }}" class="btn">View Details</a>
+        <button class="btn btn-danger btn-small"
+                hx-delete="/api/prompts/{{ prompt.id }}"
+                hx-confirm="Are you sure you want to delete this prompt and all its feedback?"
+                hx-target="#prompt-{{ prompt.id }}"
+                hx-swap="outerHTML swap:0.5s">
+            Delete
+            <span class="htmx-indicator spinner"></span>
+        </button>
     </li>
     {% endfor %}
 </ul>

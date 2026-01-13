@@ -128,6 +128,22 @@ pub async fn get_feedback_for_prompt(
     .await
 }
 
+pub async fn delete_prompt(pool: &SqlitePool, id: &str) -> Result<(), sqlx::Error> {
+    // Delete all feedback for this prompt first (foreign key constraint)
+    sqlx::query("DELETE FROM feedback WHERE prompt_id = ?")
+        .bind(id)
+        .execute(pool)
+        .await?;
+
+    // Delete the prompt
+    sqlx::query("DELETE FROM prompts WHERE id = ?")
+        .bind(id)
+        .execute(pool)
+        .await?;
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

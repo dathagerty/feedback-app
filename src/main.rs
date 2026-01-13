@@ -3,8 +3,9 @@ mod db;
 use askama::Template;
 use axum::{
     extract::{Host, Path, State},
+    http::StatusCode,
     response::{Html, IntoResponse, Redirect},
-    routing::get,
+    routing::{delete, get},
     Form, Router,
 };
 use serde::Deserialize;
@@ -42,8 +43,14 @@ struct FeedbackFormTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "feedback_success.html")]
-struct FeedbackSuccessTemplate;
+#[template(path = "feedback_success_partial.html")]
+struct FeedbackSuccessPartialTemplate;
+
+#[derive(Template)]
+#[template(path = "feedback_list_partial.html")]
+struct FeedbackListPartialTemplate {
+    feedback_list: Vec<db::Feedback>,
+}
 
 // Form data
 #[derive(Deserialize)]
@@ -138,11 +145,33 @@ async fn feedback_submit(
 
     match db::create_feedback(&state.pool, &id, &form.content).await {
         Ok(_) => {
-            let template = FeedbackSuccessTemplate;
+            let template = FeedbackSuccessPartialTemplate;
             Html(template.render().unwrap())
         }
         Err(_) => Html("Error submitting feedback".to_string()),
     }
+}
+
+async fn api_delete_prompt(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match db::delete_prompt(&state.pool, &id).await {
+        Ok(_) => StatusCode::OK,
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    }
+}
+
+async fn api_get_feedback(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let feedback_list = db::get_feedback_for_prompt(&state.pool, &id)
+        .await
+        .unwrap_or_default();
+
+    let template = FeedbackListPartialTemplate { feedback_list };
+    Html(template.render().unwrap())
 }
 
 async fn index() -> impl IntoResponse {
@@ -157,6 +186,8 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .route("/admin/new", get(admin_new_form).post(admin_new_submit))
         .route("/admin/prompt/:id", get(admin_detail))
         .route("/feedback/:id", get(feedback_form).post(feedback_submit))
+        .route("/api/prompts/:id", delete(api_delete_prompt))
+        .route("/api/feedback/:id", get(api_get_feedback))
         .with_state(state)
 }
 
@@ -440,7 +471,8 @@ mod tests {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let body_str = String::from_utf8(body.to_vec()).unwrap();
 
-        assert!(body_str.contains("Thank You"));
+        assert!(body_str.contains("Thank you!"));
+        assert!(body_str.contains("Your feedback has been submitted successfully"));
 
         // Verify feedback was created
         let feedback_list = db::get_feedback_for_prompt(&state.pool, &prompt.id)
@@ -507,6 +539,7 @@ mod tests {
 
         assert!(body_str.contains("First response"));
         assert!(body_str.contains("Second response"));
-        assert!(body_str.contains("Feedback Responses (2)"));
+        assert!(body_str.contains("Feedback Responses"));
+        assert!(body_str.contains("id=\"feedback-count\">2</span>"));
     }
 }

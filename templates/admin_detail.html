@@ -14,11 +14,14 @@
 
 <div class="link-box">
     <strong>Share this link to collect feedback:</strong><br><br>
-    <code>{{ feedback_url }}</code>
+    <code id="feedback-url">{{ feedback_url }}</code>
+    <br>
+    <button class="btn btn-small copy-btn" onclick="copyToClipboard()">Copy Link</button>
 </div>
 
-<h2>Feedback Responses ({{ feedback_list.len() }})</h2>
+<h2>Feedback Responses (<span id="feedback-count">{{ feedback_list.len() }}</span>)</h2>
 
+<div id="feedback-container" hx-get="/api/feedback/{{ prompt.id }}" hx-trigger="every 10s" hx-swap="innerHTML">
 {% if feedback_list.is_empty() %}
 <div class="empty-state">
     <p>No feedback received yet. Share the link above to start collecting responses!</p>
@@ -33,4 +36,19 @@
     {% endfor %}
 </div>
 {% endif %}
+</div>
+
+<script>
+function copyToClipboard() {
+    const url = document.getElementById('feedback-url').textContent;
+    navigator.clipboard.writeText(url).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 2000);
+    });
+}
+</script>
 {% endblock %}

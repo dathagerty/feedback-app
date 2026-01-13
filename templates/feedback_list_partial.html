@@ -1,0 +1,14 @@
+{% if feedback_list.is_empty() %}
+<div class="empty-state">
+    <p>No feedback received yet. Share the link above to start collecting responses!</p>
+</div>
+{% else %}
+<div class="feedback-list">
+    {% for fb in feedback_list %}
+    <div class="feedback-item">
+        <div class="content">{{ fb.content }}</div>
+        <div class="meta">Submitted: {{ fb.created_at }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

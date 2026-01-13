@@ -6,12 +6,21 @@
 <h1>{{ prompt.title }}</h1>
 <p>{{ prompt.description }}</p>
 
-<form method="POST" action="/feedback/{{ prompt.id }}">
+<div id="feedback-result"></div>
+
+<form method="POST" action="/feedback/{{ prompt.id }}"
+      hx-post="/feedback/{{ prompt.id }}"
+      hx-target="#feedback-result"
+      hx-swap="innerHTML"
+      hx-on::after-request="if(event.detail.successful) this.reset()">
     <div class="form-group">
         <label for="content">Your Feedback</label>
         <textarea id="content" name="content" required placeholder="Share your thoughts..."></textarea>
     </div>
 
-    <button type="submit" class="btn btn-success">Submit Feedback</button>
+    <button type="submit" class="btn btn-success">
+        Submit Feedback
+        <span class="htmx-indicator spinner"></span>
+    </button>
 </form>
 {% endblock %}
