@@ -14,6 +14,9 @@ chrono = { version = "0.4", features = ["serde"] }
 askama = "0.12"
 askama_axum = "0.4"
 tower-http = { version = "0.5", features = ["fs"] }
+tower-sessions = "0.13"
+argon2 = "0.5"
+time = "0.3"
 
 [dev-dependencies]
 tower = { version = "0.5", features = ["util"] }
